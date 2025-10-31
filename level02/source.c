@@ -2,15 +2,15 @@
 #include <string.h>
 
 int main(int argc, const char **argv, const char **envp) {
-    char s2[100];
-    char ptr[48];
-    char s[100];
+    char pass_input[100];
+    char pass[48];
+    char username[100];
     int bytes_read = 0;
     FILE *stream = NULL;
 
-    memset(s, 0, sizeof(s));
-    memset(ptr, 0, 41);
-    memset(s2, 0, sizeof(s2));
+    memset(username, 0, sizeof(username));
+    memset(pass, 0, 41);
+    memset(pass_input, 0, sizeof(pass_input));
 
     stream = fopen("/home/users/level03/.pass", "r");
     if (!stream) {
@@ -18,8 +18,8 @@ int main(int argc, const char **argv, const char **envp) {
         exit(1);
     }
 
-    bytes_read = fread(ptr, 1, 41, stream);
-    ptr[strcspn(ptr, "\n")] = 0;
+    bytes_read = fread(pass, 1, 41, stream);
+    pass[strcspn(pass, "\n")] = 0;
 
     if (bytes_read != 41) {
         fwrite("ERROR: failed to read password file\n", 1, 36, stderr);
@@ -35,22 +35,22 @@ int main(int argc, const char **argv, const char **envp) {
     puts("\\**************************************/");
 
     printf("--[ Username: ");
-    fgets(s, 100, stdin);
-    s[strcspn(s, "\n")] = 0;
+    fgets(username, 100, stdin);
+    username[strcspn(username, "\n")] = 0;
 
     printf("--[ Password: ");
-    fgets(s2, 100, stdin);
-    s2[strcspn(s2, "\n")] = 0;
+    fgets(pass_input, 100, stdin);
+    pass_input[strcspn(pass_input, "\n")] = 0;
 
     puts("*****************************************");
 
-    if (strncmp(ptr, s2, 41)) {
-        printf(s); // Potential format string attack (%x will print the stack)
+    if (strncmp(pass, pass_input, 41)) {
+        printf(username); // Potential format string attack (%p will print 8 bytes of the stack)
         puts(" does not have access!");
         exit(1);
     }
 
-    printf("Greetings, %s!\n", s);
+    printf("Greetings, %s!\n", username);
     system("/bin/sh");
 
     return 0;

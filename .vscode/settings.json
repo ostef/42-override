@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.slang": "slang",
+        "prctl.h": "c",
+        "wait.h": "c",
+        "user.h": "c"
+    }
+}
