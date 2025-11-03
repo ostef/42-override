@@ -14,14 +14,7 @@
 #define EAX offsetof(struct user_regs_struct, orig_eax); // 32-bit registers
 
 int main(int argc, char **argv) {
-    pid_t child_pid;
-    char buf[128];
-    int v6; // [esp+A0h] [ebp-18h]
-    int v7; // [esp+A4h] [ebp-14h]
-    int v8; // [esp+A8h] [ebp-10h]
-
-    // ESP (4 bytes)
-    // EIP <- byte 156
+    // EIP pushed on the stack  <- byte 156
     // argc (4 bytes)
     // argv (4 bytes)
     // envp (4 bytes)
@@ -55,7 +48,7 @@ int main(int argc, char **argv) {
             }
 
             // PTRACE_PEEKUSER reads the registers of the tracee
-            // This makes sure that register orignal_eax always has value 11
+            // This makes sure that register orignal_eax never has value 11
             // If it is not the case the child is killed
             if (ptrace(PTRACE_PEEKUSER, child_pid, EAX) != 11) {
                 continue;
