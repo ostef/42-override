@@ -1,5 +1,6 @@
 Le programme lis le fichier .pass et prend en input du stdin un username et un mot de passe. Si le mot de passe est faux, il utilise printf pour afficher le username. On peut exploiter ce printf pour afficher les valeurs de la stack, qui contient le contenu de .pass
 
+```
 00007fffffffe500
 0000000000000000
 0000000000000025
@@ -67,3 +68,4 @@ f8e6ffffff7f0000
 2538702538702538
 7025387025387025
 3870253870253870
+```
