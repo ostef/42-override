@@ -7,27 +7,26 @@ def reverse_endian_64(hexstr):
     bytes_list = [hexstr[i:i+2] for i in range(0, 16, 2)]
     return "".join(bytes_list[::-1])
 
-def hex_to_ascii_safe(hexstr):
-    """Convert hex to ASCII printable, replace non-printable with '.'"""
-    b = bytes.fromhex(hexstr)
-    return "".join(chr(c) if 32 <= c <= 126 else '.' for c in b)
+def hex_to_ascii(hexstr):
+    """Convert hex (exact bytes) to ASCII without modification"""
+    return bytes.fromhex(hexstr).decode("latin-1")
 
 def main():
-    parser = argparse.ArgumentParser(description="Reverse addresses + hex to ASCII")
+    parser = argparse.ArgumentParser(description="Fix endian + extract ascii")
     parser.add_argument("--addresses", help="addresses", required=True)
     args = parser.parse_args()
 
     addresses = args.addresses.split()
     output = []
 
-    for addr in reversed(addresses):
-        if addr == "(nil)":
-            rev = "0" * 16
-        else:
-            rev = reverse_endian_64(addr)
+    for addr in addresses:
+        if addr == "(nil)" or addr == "0x0":
+            continue 
 
-        ascii_value = hex_to_ascii_safe(rev)
-        output.append(ascii_value)
+        if addr.startswith("0x"):
+            rev = reverse_endian_64(addr)
+            ascii_value = hex_to_ascii(rev)
+            output.append(ascii_value)
 
     print("".join(output))
 
