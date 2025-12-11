@@ -9,6 +9,7 @@ Le parent s'assure que l'enfant n'appelle jamais execve, auquel cas il le kill. 
 On utilise les variables d'environnement pour stoquer le shellcode, l'addresse de la variable est constante si la valeur reste la meme. Pour trouver l'addresse de la variable on cree un programme qui print l'addresse:
 ```
 #include <stdio.h>
+#include <stdlib.h>
 
 int main() {
     char *ptr = getenv("SHELLCODE");
