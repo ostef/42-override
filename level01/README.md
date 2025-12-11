@@ -19,7 +19,7 @@ Program received signal SIGSEGV, Segmentation fault.
 #2  0xffffd7b4 in ?? ()
 Backtrace stopped: previous frame inner to this frame (corrupt stack?)
 ```
-On en deduit que le registre RIP est a un moment charge par une valeur qu'on ecrase par ce qu'on ecrit. On aimerait controller precisement quelle valeur on va mettre dans RIP pour executer le code qu'on veut.
+On en deduit que le registre EIP est a un moment charge par une valeur qu'on ecrase par ce qu'on ecrit. On aimerait controller precisement quelle valeur on va mettre dans EIP pour executer le code qu'on veut.
 
 ## Calculer l'offset
 On peut utiliser un outil pour calculer cet offset: https://wiremask.eu/tools/buffer-overflow-pattern-generator/
